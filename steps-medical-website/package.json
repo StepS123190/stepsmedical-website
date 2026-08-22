@@ -1,0 +1,13 @@
+{
+  "name": "steps-medical-website",
+  "private": true,
+  "version": "1.0.0",
+  "description": "www.stepsmedical.com.au — static site, deployed to Cloudflare Workers (static assets).",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

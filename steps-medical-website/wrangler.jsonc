@@ -1,0 +1,22 @@
+{
+  // Cloudflare Workers config for the Steps Medical static site.
+  // Almost entirely static — the only server-side logic is index.js, which
+  // redirects the bare apex and any http:// request to https://www..., then
+  // hands everything else straight to the static files (HTML, CSS, JS,
+  // sitemap, etc.). Deploy with: npx wrangler deploy
+  "name": "steps-medical",
+  "compatibility_date": "2026-08-22",
+  "main": "./index.js",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS"
+  },
+  // Attaches both the apex and www hostnames directly to this Worker.
+  // Requires stepsmedical.com.au to already be an active zone in this
+  // Cloudflare account (i.e. its nameservers point at Cloudflare) before
+  // `wrangler deploy` can create these.
+  "routes": [
+    { "pattern": "www.stepsmedical.com.au", "custom_domain": true },
+    { "pattern": "stepsmedical.com.au", "custom_domain": true }
+  ]
+}
