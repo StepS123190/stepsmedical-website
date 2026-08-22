@@ -1,0 +1,9 @@
+# Cloudflare Pages redirect rules
+# Canonicalise everything to https://www.stepsmedical.com.au
+# (Cloudflare Pages serves *.pages.dev and any custom domain on the same
+# deployment; these rules stop the apex/bare domain and the pages.dev
+# preview URL from competing with the canonical www URL in search.)
+
+https://stepsmedical.com.au/*  https://www.stepsmedical.com.au/:splat  301!
+http://stepsmedical.com.au/*   https://www.stepsmedical.com.au/:splat  301!
+http://www.stepsmedical.com.au/*  https://www.stepsmedical.com.au/:splat  301!
