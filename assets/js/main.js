@@ -6,12 +6,14 @@
   toggle.addEventListener("click", function () {
     var isOpen = mobileNav.classList.toggle("open");
     toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    toggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
   });
 
   mobileNav.querySelectorAll("a").forEach(function (link) {
     link.addEventListener("click", function () {
       mobileNav.classList.remove("open");
       toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Open menu");
     });
   });
 })();
