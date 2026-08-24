@@ -121,7 +121,7 @@
       .catch(function () {
         if (status) {
           status.innerHTML =
-            'Something went wrong sending that. Please try again, or email us directly at <a href="mailto:hello@studiosteps.co">hello@studiosteps.co</a>.';
+            'Something went wrong sending that. Please try again, or email us directly at <a href="mailto:jason@studiosteps.co">jason@studiosteps.co</a>.';
           status.className = "form-status is-error";
         }
       })
