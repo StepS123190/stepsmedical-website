@@ -18,6 +18,123 @@
   });
 })();
 
+/* ---------- Hero image carousel ----------
+   Progressively enhances a static hero image into an auto-rotating
+   crossfade carousel. Markup: a .hero-carousel container with
+   data-carousel-images (JSON array of image URLs) and data-carousel-interval
+   (ms), holding a single <img>. Images are shuffled once per page load and
+   swapped on an interval, loading each one on demand rather than upfront. */
+(function () {
+  var el = document.querySelector(".hero-carousel");
+  if (!el) return;
+
+  var reduceMotion =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion) return;
+
+  var raw = el.getAttribute("data-carousel-images");
+  if (!raw) return;
+  var images;
+  try {
+    images = JSON.parse(raw);
+  } catch (e) {
+    return;
+  }
+  if (!Array.isArray(images) || images.length < 2) return;
+
+  var img = el.querySelector("img");
+  if (!img) return;
+
+  var interval = parseInt(el.getAttribute("data-carousel-interval"), 10) || 30000;
+
+  // Group by job: real project frames key off the /work/<project>/ folder;
+  // everything else (generic lab/macro photography) shares one "generic"
+  // key, so two shots from the same job (or two generic shots) never land
+  // back to back.
+  function jobKey(src) {
+    var m = src.match(/\/assets\/images\/work\/([^/]+)\//);
+    return m ? m[1] : "generic";
+  }
+
+  // Fisher-Yates shuffle so each page load gets a fresh random order.
+  for (var i = images.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = images[i];
+    images[i] = images[j];
+    images[j] = tmp;
+  }
+
+  // Don't show the same image twice in a row as the very first swap.
+  var currentSrc = img.getAttribute("src");
+  images = images.filter(function (src) {
+    return src !== currentSrc;
+  });
+  if (!images.length) return;
+
+  // Rearrange so no two adjacent images (including the wrap from the last
+  // image back to the first) share a job key.
+  var keys = images.map(jobKey);
+  for (var k = 1; k < images.length; k++) {
+    if (keys[k] === keys[k - 1]) {
+      for (var s = k + 1; s < images.length; s++) {
+        if (keys[s] !== keys[k - 1] && (s !== images.length - 1 || keys[s] !== keys[0])) {
+          var tmpImg = images[k];
+          images[k] = images[s];
+          images[s] = tmpImg;
+          var tmpKey = keys[k];
+          keys[k] = keys[s];
+          keys[s] = tmpKey;
+          break;
+        }
+      }
+    }
+  }
+  if (images.length > 1 && keys[keys.length - 1] === keys[0]) {
+    for (var w = images.length - 2; w > 0; w--) {
+      if (keys[w] !== keys[0] && keys[w] !== keys[images.length - 2]) {
+        var tmpImg2 = images[images.length - 1];
+        images[images.length - 1] = images[w];
+        images[w] = tmpImg2;
+        break;
+      }
+    }
+  }
+
+  var idx = 0;
+
+  function preload(src) {
+    return new Promise(function (resolve) {
+      var loader = new Image();
+      loader.onload = function () {
+        resolve(true);
+      };
+      loader.onerror = function () {
+        resolve(false);
+      };
+      loader.src = src;
+    });
+  }
+
+  function showNext() {
+    if (!images.length) return;
+    var src = images[idx % images.length];
+    idx += 1;
+    preload(src).then(function (ok) {
+      if (!ok) {
+        showNext();
+        return;
+      }
+      img.style.opacity = "0";
+      setTimeout(function () {
+        img.src = src;
+        img.style.opacity = "1";
+      }, 500);
+    });
+  }
+
+  setInterval(showNext, interval);
+})();
+
 /* ---------- On-page video lightbox ----------
    Used by direct/Mux video files (work-tile and video-block buttons render
    with data-video-src) so the film plays inline over the current page
